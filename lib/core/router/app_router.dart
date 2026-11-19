@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,22 +20,27 @@ GoRouter appRouter(Ref ref) {
         branches: [
           StatefulShellBranch(routes: [
             GoRoute(
-                path: Routes.home,
-                builder: (_, __) => const HomeScreen()),
+              path: Routes.home,
+              builder: (context, state) => const HomeScreen(),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-                path: Routes.map, builder: (_, __) => const MapScreen()),
+              path: Routes.map,
+              builder: (context, state) => const MapScreen(),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-                path: Routes.favorites,
-                builder: (_, __) => const FavoriteScreen()),
+              path: Routes.favorites,
+              builder: (context, state) => const FavoriteScreen(),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-                path: Routes.profile,
-                builder: (_, __) => const ProfileScreen()),
+              path: Routes.profile,
+              builder: (context, state) => const ProfileScreen(),
+            ),
           ]),
         ],
       ),
