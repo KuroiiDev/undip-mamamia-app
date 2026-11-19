@@ -1,33 +1,21 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+
+    return MaterialApp.router(
       title: 'Mamamia',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Mamamia')),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(onPressed: () {}, child: const Text('Tombol')),
-              const SizedBox(height: 16),
-              const Chip(label: Text('Kopi')),
-              const SizedBox(height: 16),
-              const TextField(
-                decoration: InputDecoration(hintText: 'Cari makanan'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      routerConfig: router,
     );
   }
 }
