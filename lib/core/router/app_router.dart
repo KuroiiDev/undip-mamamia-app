@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
+import '../../features/admin/presentation/admin_shell.dart';
+import '../../features/admin/presentation/admin_stores_screen.dart';
+import '../../features/admin/presentation/admin_users_screen.dart';
 import '../../features/auth/presentation/banned_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -165,9 +168,28 @@ GoRouter appRouter(Ref ref) {
           ]),
         ],
       ),
-      GoRoute(
-        path: Routes.adminDashboard,
-        builder: (context, state) => const AdminDashboardScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => AdminShell(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.adminDashboard,
+              builder: (context, state) => const AdminDashboardScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.adminStores,
+              builder: (context, state) => const AdminStoresScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.adminUsers,
+              builder: (context, state) => const AdminUsersScreen(),
+            ),
+          ]),
+        ],
       ),
     ],
   );

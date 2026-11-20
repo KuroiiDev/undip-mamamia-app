@@ -20,4 +20,6 @@ abstract final class Routes {
 
   // Admin
   static const adminDashboard = '/admin/dashboard';
+  static const adminStores = '/admin/stores';
+  static const adminUsers = '/admin/users';
 }
