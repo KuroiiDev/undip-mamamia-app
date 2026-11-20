@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/auth/providers/session_provider.dart';
 import '../storage/token_storage.dart';
 import 'auth_interceptor.dart';
 
@@ -30,6 +31,12 @@ Dio dio(Ref ref) {
   dio.interceptors.add(
     AuthInterceptor(
       tokenStorage: tokenStorage,
+      onUnauthorized: () {
+        ref.read(sessionProvider.notifier).setLoggedOut();
+      },
+      onAccountBanned: (reason) {
+        ref.read(sessionProvider.notifier).setBanned(reason);
+      },
     ),
   );
 
