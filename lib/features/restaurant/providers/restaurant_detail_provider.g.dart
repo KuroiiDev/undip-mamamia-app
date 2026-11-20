@@ -56,7 +56,7 @@ final class RestaurantDetailNotifierProvider
 }
 
 String _$restaurantDetailNotifierHash() =>
-    r'7d9cac6f3471614aa0138beea9d33390170a1405';
+    r'018e0524791af87508b0545e4f753ecf673bfd71';
 
 final class RestaurantDetailNotifierFamily extends $Family
     with
