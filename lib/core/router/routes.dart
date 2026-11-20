@@ -6,9 +6,11 @@ abstract final class Routes {
 
   // User
   static const home = '/home';
+  static const search = '/search';
   static const map = '/map';
   static const favorites = '/favorites';
   static const profile = '/profile';
+  static const restaurantDetail = '/restaurant/:id';
 
   // Merchant
   static const merchantDashboard = '/merchant/dashboard';

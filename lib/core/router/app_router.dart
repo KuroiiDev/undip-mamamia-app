@@ -13,6 +13,8 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/merchant/presentation/merchant_dashboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/restaurant/presentation/restaurant_detail_screen.dart';
+import '../../features/search/presentation/search_screen.dart';
 import '../../features/user_shell/presentation/user_shell.dart';
 import 'routes.dart';
 
@@ -88,6 +90,18 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.banned,
         builder: (context, state) => const BannedScreen(),
+      ),
+      GoRoute(
+        path: Routes.search,
+        builder: (context, state) => SearchScreen(
+          initialCategoryId: state.uri.queryParameters['category'],
+        ),
+      ),
+      GoRoute(
+        path: Routes.restaurantDetail,
+        builder: (context, state) => RestaurantDetailScreen(
+          id: state.pathParameters['id']!,
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => UserShell(navigationShell: shell),
