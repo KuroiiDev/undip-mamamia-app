@@ -118,4 +118,10 @@ class Session extends _$Session {
   void setLoggedOut() {
     state = const SessionState(status: SessionStatus.loggedOut);
   }
+
+  void updateUser(SessionUser user) {
+    if (state.status == SessionStatus.loggedIn) {
+      state = state.copyWith(user: user);
+    }
+  }
 }
