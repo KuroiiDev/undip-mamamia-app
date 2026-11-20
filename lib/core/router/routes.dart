@@ -14,6 +14,9 @@ abstract final class Routes {
 
   // Merchant
   static const merchantDashboard = '/merchant/dashboard';
+  static const merchantStore = '/merchant/store';
+  static const merchantMenus = '/merchant/menus';
+  static const merchantReviews = '/merchant/reviews';
 
   // Admin
   static const adminDashboard = '/admin/dashboard';

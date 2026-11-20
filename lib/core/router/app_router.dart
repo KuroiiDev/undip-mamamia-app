@@ -12,6 +12,10 @@ import '../../features/favorite/presentation/favorite_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
 import '../../features/merchant/presentation/merchant_dashboard_screen.dart';
+import '../../features/merchant/presentation/merchant_menus_screen.dart';
+import '../../features/merchant/presentation/merchant_reviews_screen.dart';
+import '../../features/merchant/presentation/merchant_shell.dart';
+import '../../features/merchant/presentation/merchant_store_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/restaurant/presentation/restaurant_detail_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
@@ -132,9 +136,34 @@ GoRouter appRouter(Ref ref) {
           ]),
         ],
       ),
-      GoRoute(
-        path: Routes.merchantDashboard,
-        builder: (context, state) => const MerchantDashboardScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => MerchantShell(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.merchantDashboard,
+              builder: (context, state) => const MerchantDashboardScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.merchantStore,
+              builder: (context, state) => const MerchantStoreScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.merchantMenus,
+              builder: (context, state) => const MerchantMenusScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.merchantReviews,
+              builder: (context, state) => const MerchantReviewsScreen(),
+            ),
+          ]),
+        ],
       ),
       GoRoute(
         path: Routes.adminDashboard,
