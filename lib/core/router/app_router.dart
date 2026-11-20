@@ -1,20 +1,94 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/admin/presentation/admin_dashboard_screen.dart';
+import '../../features/auth/presentation/banned_screen.dart';
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/splash_screen.dart';
+import '../../features/auth/providers/session_provider.dart';
 import '../../features/favorite/presentation/favorite_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/map/presentation/map_screen.dart';
+import '../../features/merchant/presentation/merchant_dashboard_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/user_shell/presentation/user_shell.dart';
 import 'routes.dart';
 
 part 'app_router.g.dart';
 
+class _RouterNotifier extends ChangeNotifier {
+  _RouterNotifier(Ref ref) {
+    ref.listen(sessionProvider, (_, _) => notifyListeners());
+  }
+}
+
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
+  final notifier = _RouterNotifier(ref);
+
   return GoRouter(
-    initialLocation: Routes.home,
+    initialLocation: Routes.splash,
+    refreshListenable: notifier,
+    redirect: (context, state) {
+      final session = ref.read(sessionProvider);
+      final status = session.status;
+      final location = state.uri.path;
+
+      final isAuthRoute =
+          location == Routes.login || location == Routes.register;
+
+      if (status == SessionStatus.unknown) {
+        return location == Routes.splash ? null : Routes.splash;
+      }
+
+      if (status == SessionStatus.banned) {
+        return location == Routes.banned ? null : Routes.banned;
+      }
+
+      if (status == SessionStatus.loggedOut) {
+        return isAuthRoute ? null : Routes.login;
+      }
+
+      // Logged in
+      final role = session.user?.role;
+
+      if (isAuthRoute ||
+          location == Routes.splash ||
+          location == Routes.banned) {
+        if (role == 'merchant') return Routes.merchantDashboard;
+        if (role == 'admin') return Routes.adminDashboard;
+        return Routes.home;
+      }
+
+      // Role isolation
+      if (location.startsWith('/merchant') && role != 'merchant') {
+        return Routes.home;
+      }
+      if (location.startsWith('/admin') && role != 'admin') {
+        return Routes.home;
+      }
+
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: Routes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: Routes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: Routes.banned,
+        builder: (context, state) => const BannedScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => UserShell(navigationShell: shell),
         branches: [
@@ -43,6 +117,14 @@ GoRouter appRouter(Ref ref) {
             ),
           ]),
         ],
+      ),
+      GoRoute(
+        path: Routes.merchantDashboard,
+        builder: (context, state) => const MerchantDashboardScreen(),
+      ),
+      GoRoute(
+        path: Routes.adminDashboard,
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
     ],
   );
