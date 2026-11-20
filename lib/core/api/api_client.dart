@@ -9,7 +9,7 @@ part 'api_client.g.dart';
 
 const String _defaultBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://localhost/api/v1',
+  defaultValue: 'http://192.168.1.224:8000/api/v1',
 );
 
 @Riverpod(keepAlive: true)
