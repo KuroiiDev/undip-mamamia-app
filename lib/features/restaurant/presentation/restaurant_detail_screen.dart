@@ -43,12 +43,12 @@ class _RestaurantDetailScreenState
     super.dispose();
   }
 
-  Future<void> _openMaps(double lat, double lng, String name) async {
-    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  // Future<void> _openMaps(double lat, double lng, String name) async {
+  //   final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+  //   if (await canLaunchUrl(uri)) {
+  //     await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //   }
+  // }
 
   Future<void> _callPhone(String? phone) async {
     if (phone == null || phone.isEmpty) return;
@@ -219,21 +219,21 @@ class _RestaurantDetailScreenState
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () =>
-                                    _openMaps(detail.lat, detail.lng, detail.name),
-                                icon: const Icon(Icons.directions_rounded, size: 18),
-                                label: const Text('Petunjuk Arah'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.lilac700,
-                                  side: const BorderSide(color: AppColors.lilac300),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // Expanded(
+                            //   child: OutlinedButton.icon(
+                            //     onPressed: () =>
+                            //         _openMaps(detail.lat, detail.lng, detail.name),
+                            //     icon: const Icon(Icons.directions_rounded, size: 18),
+                            //     label: const Text('Petunjuk Arah'),
+                            //     style: OutlinedButton.styleFrom(
+                            //       foregroundColor: AppColors.lilac700,
+                            //       side: const BorderSide(color: AppColors.lilac300),
+                            //       shape: RoundedRectangleBorder(
+                            //         borderRadius: BorderRadius.circular(12),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                             if (detail.phone != null && detail.phone!.isNotEmpty) ...[
                               const SizedBox(width: 12),
                               Expanded(
