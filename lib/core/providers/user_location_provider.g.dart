@@ -9,6 +9,48 @@ part of 'user_location_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(locationPermissionStatus)
+final locationPermissionStatusProvider = LocationPermissionStatusProvider._();
+
+final class LocationPermissionStatusProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LocationPermissionStatus>,
+          LocationPermissionStatus,
+          FutureOr<LocationPermissionStatus>
+        >
+    with
+        $FutureModifier<LocationPermissionStatus>,
+        $FutureProvider<LocationPermissionStatus> {
+  LocationPermissionStatusProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'locationPermissionStatusProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$locationPermissionStatusHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<LocationPermissionStatus> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<LocationPermissionStatus> create(Ref ref) {
+    return locationPermissionStatus(ref);
+  }
+}
+
+String _$locationPermissionStatusHash() =>
+    r'1fe4e83cbab67c6e3334f78e39f4f30336e67fa9';
+
 @ProviderFor(userLocation)
 final userLocationProvider = UserLocationProvider._();
 
