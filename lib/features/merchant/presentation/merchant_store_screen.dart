@@ -314,18 +314,21 @@ class _MerchantStoreScreenState extends ConsumerState<MerchantStoreScreen> {
                 // Price Level
                 const Text('Kisaran Harga', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    for (final p in [1, 2, 3])
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(p == 1 ? 'Rp (Murah)' : (p == 2 ? 'RpRp (Sedang)' : 'RpRpRp (Premium)')),
-                          selected: _priceLevel == p,
-                          onSelected: (_) => setState(() => _priceLevel = p),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final p in [1, 2, 3])
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(p == 1 ? 'Rp (Murah)' : (p == 2 ? 'RpRp (Sedang)' : 'RpRpRp (Premium)')),
+                            selected: _priceLevel == p,
+                            onSelected: (_) => setState(() => _priceLevel = p),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 20),
 
