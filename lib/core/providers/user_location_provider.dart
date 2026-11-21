@@ -13,6 +13,28 @@ class UserLocation {
   String toString() => 'UserLocation(lat: $lat, lng: $lng)';
 }
 
+/// Status izin lokasi untuk UI feedback.
+enum LocationPermissionStatus {
+  granted,
+  denied,
+  deniedForever,
+  serviceDisabled,
+  loading,
+}
+
+@Riverpod(keepAlive: true)
+Future<LocationPermissionStatus> locationPermissionStatus(Ref ref) async {
+  final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) return LocationPermissionStatus.serviceDisabled;
+
+  final permission = await Geolocator.checkPermission();
+  return switch (permission) {
+    LocationPermission.denied => LocationPermissionStatus.denied,
+    LocationPermission.deniedForever => LocationPermissionStatus.deniedForever,
+    _ => LocationPermissionStatus.granted,
+  };
+}
+
 @Riverpod(keepAlive: true)
 Future<UserLocation?> userLocation(Ref ref) async {
   final serviceEnabled = await Geolocator.isLocationServiceEnabled();

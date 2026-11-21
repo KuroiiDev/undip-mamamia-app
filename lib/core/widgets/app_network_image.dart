@@ -4,6 +4,19 @@ import 'package:material_ui/material_ui.dart';
 import '../theme/app_colors.dart';
 import 'skeleton_box.dart';
 
+/// Base URL for resolving relative image paths from the API.
+/// Strips /api/v1 from the API base URL to get the server root.
+const String _apiBaseUrl = String.fromEnvironment(
+  'API_BASE_URL',
+  defaultValue: 'http://192.168.26.4:8000/api/v1',
+);
+
+String get _serverBaseUrl {
+  // Remove /api/v1 or /api suffix to get e.g. http://192.168.26.4:8000
+  final uri = Uri.parse(_apiBaseUrl);
+  return '${uri.scheme}://${uri.host}:${uri.port}';
+}
+
 class AppNetworkImage extends StatelessWidget {
   const AppNetworkImage({
     super.key,
@@ -22,12 +35,25 @@ class AppNetworkImage extends StatelessWidget {
   final BorderRadiusGeometry? borderRadius;
   final String? semanticLabel;
 
+  /// Resolves a possibly-relative URL to a full URL.
+  /// e.g. "/storage/covers/abc.jpg" → "http://192.168.26.4:8000/storage/covers/abc.jpg"
+  static String? _resolveUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    final trimmed = url.trim();
+    // Already a full URL
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    // Relative path — prepend server base
+    return '$_serverBaseUrl$trimmed';
+  }
+
   @override
   Widget build(BuildContext context) {
     final radius = borderRadius ?? BorderRadius.zero;
 
     Widget imageWidget;
-    final url = imageUrl?.trim();
+    final url = _resolveUrl(imageUrl);
 
     if (url == null || url.isEmpty) {
       imageWidget = Container(
