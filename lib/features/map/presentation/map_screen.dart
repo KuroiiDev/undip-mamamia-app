@@ -1,5 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
@@ -20,14 +21,34 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   LatLng _currentCenter = MapNotifier.defaultCenter;
 
+  Future<void> _requestPermission() async {
+    final permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+    }
+    // Refresh providers setelah request
+    ref.invalidate(locationPermissionStatusProvider);
+    ref.invalidate(userLocationProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     final mapState = ref.watch(mapProvider);
     final userLocation = ref.watch(userLocationProvider).value;
+    final permissionStatus = ref.watch(locationPermissionStatusProvider).when(
+          data: (status) => status,
+          loading: () => LocationPermissionStatus.loading,
+          error: (_, _) => LocationPermissionStatus.loading,
+        );
 
     final initialCenter = userLocation != null
         ? LatLng(userLocation.lat, userLocation.lng)
         : MapNotifier.defaultCenter;
+
+    final showPermissionBanner =
+        permissionStatus == LocationPermissionStatus.denied ||
+            permissionStatus == LocationPermissionStatus.deniedForever ||
+            permissionStatus == LocationPermissionStatus.serviceDisabled;
 
     return Scaffold(
       body: Stack(
@@ -54,12 +75,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
               MarkerLayer(
                 markers: [
-                  // User location marker
+                  // User location marker — avatar icon
                   if (userLocation != null)
                     Marker(
                       point: LatLng(userLocation.lat, userLocation.lng),
-                      width: 28,
-                      height: 28,
+                      width: 40,
+                      height: 40,
                       child: Container(
                         decoration: BoxDecoration(
                           color: AppColors.lilac500,
@@ -68,20 +89,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.lilac500.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              spreadRadius: 2,
+                              blurRadius: 10,
+                              spreadRadius: 3,
                             ),
                           ],
                         ),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                     ),
-                  // Restaurant markers
+                  // Restaurant markers — larger
                   ...mapState.points.map((point) {
                     final isSelected = mapState.selectedPoint?.id == point.id;
                     return Marker(
                       point: LatLng(point.lat, point.lng),
-                      width: 72,
-                      height: 48,
+                      width: 100,
+                      height: 64,
                       child: GestureDetector(
                         onTap: () {
                           ref.read(mapProvider.notifier).selectPoint(point);
@@ -96,10 +122,83 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
+          // Location permission banner
+          if (showPermissionBanner)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 8,
+              left: 16,
+              right: 16,
+              child: Material(
+                borderRadius: BorderRadius.circular(12),
+                elevation: 4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.warning.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_off_rounded,
+                          color: AppColors.warning, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          permissionStatus ==
+                                  LocationPermissionStatus.serviceDisabled
+                              ? 'Layanan lokasi nonaktif. Aktifkan GPS.'
+                              : 'Izin lokasi diperlukan untuk menampilkan posisimu.',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () async {
+                          if (permissionStatus ==
+                              LocationPermissionStatus.serviceDisabled) {
+                            await Geolocator.openLocationSettings();
+                            ref.invalidate(locationPermissionStatusProvider);
+                            ref.invalidate(userLocationProvider);
+                          } else {
+                            await _requestPermission();
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          permissionStatus ==
+                                  LocationPermissionStatus.deniedForever
+                              ? 'Buka Setelan'
+                              : 'Izinkan',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.lilac700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           // Loading indicator
           if (mapState.isLoading)
             Positioned(
-              top: 48,
+              top: showPermissionBanner
+                  ? MediaQuery.of(context).padding.top + 68
+                  : 48,
               left: 0,
               right: 0,
               child: Center(
@@ -129,7 +228,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           // Search this area button
           if (mapState.showSearchThisArea && !mapState.isLoading)
             Positioned(
-              top: 48,
+              top: showPermissionBanner
+                  ? MediaQuery.of(context).padding.top + 68
+                  : 48,
               left: 0,
               right: 0,
               child: Center(
@@ -188,29 +289,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.lilac700 : Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isSelected ? Colors.white : AppColors.lilac500,
-              width: 1.5,
+              width: 2,
             ),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.star_rounded,
-                size: 12,
+                size: 16,
                 color: isSelected ? Colors.amber[200] : AppColors.star,
               ),
-              const SizedBox(width: 2),
+              const SizedBox(width: 3),
               Text(
                 point.ratingLabel,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.white : AppColors.ink,
                 ),
@@ -220,7 +327,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ),
         Icon(
           Icons.location_on,
-          size: 22,
+          size: 30,
           color: isSelected ? AppColors.lilac700 : AppColors.lilac500,
         ),
       ],
